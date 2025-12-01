@@ -1,0 +1,13 @@
+# Python example
+__pycache__/
+*.pyc
+.env
+venv/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Make/Website
+_site/
