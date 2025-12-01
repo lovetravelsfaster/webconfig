@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# Changes which release a given site's 
+# environments points to
+#
+# Author: lovetravelsfaster
+# Date: 2025-12-01
+# License: MIT
+
+SITE=$1
+ENVIRONMENT=$2
+BUILD_ID=$3
+
+ROLLOUT_ID=$(date +%Y-%m-%d_%H-%M-%S)
+
+# Make sure site, environment and build_ids are valid
+
+# Update main config file, havent chosen name yet
+# Need to design the data structure for this
+# I want there to be history too, with to/from dates
+
+# Update symlinks to new reality
+
+# NOTE: Look into doing this atomically, only update config 
+# file if symlinks work, and vice versa.
