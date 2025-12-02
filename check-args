@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+#
+# Make sure site, environment and build_ids are valid
+#
+# Author: lovetravelsfaster
+# Date: 2025-12-01
+# License: MIT
+
+set -euo pipefail
+
+FUNCTION="${1:-}"
+SITE="${2:-}"
+CHECK_VAR="${3:-}"
+
+ROLLOUT_ID=$(date +%Y-%m-%d_%H-%M-%S)
+
+# First site
+check_site() {
+	local site="$1"
+	local site_check="/etc/nginx/sites-available/$site"
+	if [[ ! -e "$site_check" ]]; then
+	  echo "Error: site '$site' not found in /etc/nginx/sites-available" >&2
+	  echo "Available sites:" >&2
+	  ls -l /etc/nginx/sites-available >&2
+	  exit 1
+	fi
+}
+
+# Then environment
+check_environment() {
+	local environment="$1"
+	if [[ "$environment" != "current" && "$environment" != "staging" ]]; then
+	  echo "Error: ENVIRONMENT must be 'current' or 'staging', got: '$environment'" >&2
+	  exit 1
+	fi
+}
+
+# Lastly, check release
+check_release_id() {
+	local release_id="$1"
+	releases_root="/srv/www/"$SITE"/releases"
+	release_dir="$releases_root/$release_id"
+
+	# Require release dir to exist
+	if [[ ! -d "$release_dir" ]]; then
+	  echo "Error: release directory not found: $release_dir" >&2
+	  exit 1
+	fi
+
+	# Require index.html inside the release dir
+	if [[ ! -f "$release_dir/index.html" ]]; then
+	  echo "Error: $release_dir does not contain index.html" >&2
+	  exit 1
+	fi
+}
+
+$FUNCTION "$CHECK_VAR"

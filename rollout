@@ -1,19 +1,45 @@
 #!/usr/bin/env bash
 #
-# Changes which release a given site's 
-# environments points to
+# Rolling out a specific release, 
+# to a specific environment,
+# on a specific site.
 #
 # Author: lovetravelsfaster
 # Date: 2025-12-01
 # License: MIT
+source "$(dirname "$0")/helpers"
 
-SITE=$1
-ENVIRONMENT=$2
-BUILD_ID=$3
+set -euo pipefail
+
+SITE="${1:-}"
+ENVIRONMENT="${2:-}"
+RELEASE_ID="${3:-}"
 
 ROLLOUT_ID=$(date +%Y-%m-%d_%H-%M-%S)
 
-# Make sure site, environment and build_ids are valid
+# First we check all the args
+
+# This checks a given arg
+check_arg() {
+	local arg="$1"
+	declare -l lower_arg
+	lower_arg="$arg"
+	local function="check_$lower_arg"
+	if ssh deploy@lakelabs "bash -s -- "$function" "$SITE" "${!arg}"" < check-args; then
+	    printf "$OK - $arg is valid\n"
+	else
+	    printf "$FAIL - $arg is not valid\n"
+	fi
+
+}
+
+# Checking them all
+check_arg "SITE"
+check_arg "ENVIRONMENT"
+check_arg "RELEASE_ID"
+printf "$OK - ALL args checked out OK\n"
+
+# Next, we need to do these things: 
 
 # Update main config file, havent chosen name yet
 # Need to design the data structure for this
@@ -23,3 +49,4 @@ ROLLOUT_ID=$(date +%Y-%m-%d_%H-%M-%S)
 
 # NOTE: Look into doing this atomically, only update config 
 # file if symlinks work, and vice versa.
+
