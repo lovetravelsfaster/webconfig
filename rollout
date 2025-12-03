@@ -17,7 +17,9 @@ RELEASE_ID="${3:-}"
 
 ROLLOUT_ID=$(date +%Y-%m-%d_%H-%M-%S)
 
+#############################
 # First we check all the args
+#############################
 
 # This checks a given arg
 check_arg() {
@@ -29,6 +31,7 @@ check_arg() {
 	    printf "$OK - $arg is valid\n"
 	else
 	    printf "$FAIL - $arg is not valid\n"
+	    exit 1
 	fi
 
 }
@@ -38,15 +41,56 @@ check_arg "SITE"
 check_arg "ENVIRONMENT"
 check_arg "RELEASE_ID"
 printf "$OK - ALL args checked out OK\n"
+printf "===============\n"
 
-# Next, we need to do these things: 
+############################
+# Then we write rollout logs
+############################
 
-# Update main config file, havent chosen name yet
-# Need to design the data structure for this
-# I want there to be history too, with to/from dates
+# Setting up rollout_logs.txt if doesnt exist
+rollout_log="/srv/www/clauslol/rollouts/rollout_log.txt"
 
-# Update symlinks to new reality
+ssh deploy@lakelabs 'bash -s' << EOF
+if [[ ! -f "$rollout_log" ]]; then
+    printf "# rollout_id\trelease_id\tenvironment\n" > "$rollout_log"
+fi
+EOF
 
-# NOTE: Look into doing this atomically, only update config 
-# file if symlinks work, and vice versa.
+# Writing rollout data to rollout_log.txt
+if ssh deploy@lakelabs 'bash -s' << EOF
+printf '%s\t%s\t%s\n' "$ROLLOUT_ID" "$RELEASE_ID" "$ENVIRONMENT" >> "$rollout_log"
+EOF
+then
+	printf "$OK - Updated rollout_log\n"
+	printf "\tROLLOUT_ID: $ROLLOUT_ID -- RELEASE_ID: $RELEASE_ID -- ENVIRONMENT: $ENVIRONMENT\n"
+else
+	printf "$FAIL - Something went wrong writing to rollout_log.txt\n"
+	exit 1
+fi
+
+printf "===============\n"
+
+########################
+# Then we update symlink
+########################
+
+target=/srv/www/clauslol/releases/"$RELEASE_ID"
+link=/srv/www/clauslol/"$ENVIRONMENT"
+
+# Update symlink to new reality for environment
+if ssh deploy@lakelabs 'bash -s' << EOF
+	ln -sfn $target $link
+	printf "$target\n"
+	printf "$link\n"
+	ls -l /srv/www/clauslol
+	uname -n
+EOF
+then
+	printf "$OK - Symlink updated\n"
+	printf "\tTarget: $target\n"
+	printf "\tLink: $link\n"
+else
+	printf "$FAIL - Something went wrong updateing symlink\n"
+	exit 1
+fi
 
