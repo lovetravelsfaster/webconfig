@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#
+# Reading and outputting rollout_log.txt data
+#
+# Author: lovetravelsfaster
+# Date: 2025-12-03
+# License: MIT
+
+set -euo pipefail
+
+# Usage: read-rollout-log rollout_log.txt
+# or:    cat rollout_log.txt | read-rollout-log
+
+INPUT="${1:-/dev/stdin}"
+
+while IFS=$'\t' read -r rollout_id release_id environment || [[ -n "$rollout_id" ]]; do
+	# Skip empty lines
+    [[ -z "$rollout_id" ]] && continue
+
+    # Skip comments (header line)
+    [[ "$rollout_id" == \#* ]] && continue
+
+    # Strip possible CR from Windows-style line endings
+    environment=${environment%$'\r'}
+
+    printf 'Rollout ID: %s\n' "$rollout_id"
+    printf '\tRelease ID: %s\n' "$release_id"
+    printf '\tEnvironment: %s\n' "$environment"
+done < "$INPUT"

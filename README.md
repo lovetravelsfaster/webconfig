@@ -21,7 +21,6 @@ Logic for checking `rollout` arguments, not run directly but rather run from wit
 
 **show-releases**
 *Work-In-Progress*
-TODO: Make it take site as arg
 TODO: Make it either sort the releases differently, or only display top -N or whatever.
 
 Example usage: `./show-releases clauslol`

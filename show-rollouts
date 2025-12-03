@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#
+# Displaying rollouts metadata
+#
+# Author: lovetravelsfaster
+# Date: 2025-12-01
+# License: MIT
+
+SITE="${1:-}"
+
+rollout_log="/srv/www/$SITE/rollouts/rollout_log.txt"
+
+ssh deploy@lakelabs bash -s -- "$rollout_log" < read-rollout-log

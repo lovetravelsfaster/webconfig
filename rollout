@@ -41,6 +41,7 @@ check_arg "SITE"
 check_arg "ENVIRONMENT"
 check_arg "RELEASE_ID"
 printf "$OK - ALL args checked out OK\n"
+
 printf "===============\n"
 
 ############################
@@ -80,10 +81,6 @@ link=/srv/www/clauslol/"$ENVIRONMENT"
 # Update symlink to new reality for environment
 if ssh deploy@lakelabs 'bash -s' << EOF
 	ln -sfn $target $link
-	printf "$target\n"
-	printf "$link\n"
-	ls -l /srv/www/clauslol
-	uname -n
 EOF
 then
 	printf "$OK - Symlink updated\n"

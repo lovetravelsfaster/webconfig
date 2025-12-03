@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#
+# Reading and outputting release_log.txt data
+#
+# Author: lovetravelsfaster
+# Date: 2025-12-03
+# License: MIT
+
+set -euo pipefail
+
+# Usage: read-release-log release_log.txt
+# or:    cat release_log.txt | read-release-log
+
+INPUT="${1:-/dev/stdin}"
+
+while IFS=$'\t' read -r release_id description || [[ -n "$release_id" ]]; do
+	# Skip empty lines
+    [[ -z "$release_id" ]] && continue
+
+    # Skip comments (header line)
+    [[ "$release_id" == \#* ]] && continue
+
+    # Strip possible CR from Windows-style line endings
+    description=${description%$'\r'}
+
+    printf 'Release ID: %s\n' "$release_id"
+    printf '\tDescription: %s\n' "$description"
+done < "$INPUT"

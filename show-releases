@@ -7,20 +7,12 @@
 # Date: 2025-12-01
 # License: MIT
 
+SITE="${1:-}"
 
-ssh deploy@lakelabs 'bash -s' << '"EOF"'
-release_log="/srv/www/clauslol/releases/release_log.txt"
-while IFS=$'\t' read -r release_id description || [[ -n "$release_id" ]]; do
-    # Skip empty lines
-    [[ -z "$release_id" ]] && continue
+release_log="/srv/www/$SITE/releases/release_log.txt"
 
-    # Skip comments (header line)
-    [[ "$release_id" == \#* ]] && continue
+ssh deploy@lakelabs bash -s -- "$release_log" < read-release-log
 
-    # Strip possible CR from Windows-style line endings
-    description=${description%$'\r'}
+printf "===============\n"
 
-    printf 'Release ID: %s\n' "$release_id"
-    printf '\tDescription: %s\n' "$description"
-done < "$release_log"
-"EOF"
+ssh deploy@lakelabs bash -s -- "$SITE" < read-environment-symlinks

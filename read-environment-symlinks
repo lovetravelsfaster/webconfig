@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# Displaying which releases "staging"
+# and "current" currently point to
+#
+# Author: lovetravelsfaster
+# Date: 2025-12-01
+# License: MIT
+
+SITE="${1:-}"
+DIR="/srv/www/$SITE"
+
+printf "Live configuration:\n"
+for link in "$DIR"/staging "$DIR"/current; do
+    if [[ -L "$link" ]]; then
+        target=$(readlink -f "$link")
+        release=${target##*/}
+        printf "$(basename "$link"): $release\n"
+    fi
+done
