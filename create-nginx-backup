@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# Makes a backup of the whole
+# nginx setup
+#
+# Author: lovetravelsfaster
+# Date: 2025-12-04
+# License: MIT
+
+NGINX_DIR="/etc/nginx"
+# BACKUP_BASE_DIR must exist on the server, 
+# and the user running this script must
+# be in the group that owns it, and group
+# must have write rights on it.
+BACKUP_BASE_DIR="/etc/nginx-backups"
+BACKUP_ID=$(date +%Y-%m-%d_%H-%M-%S)
+BACKUP_DIR="$BACKUP_BASE_DIR"/"$BACKUP_ID"
+
+mkdir -p "$BACKUP_DIR"
+cp -r "$NGINX_DIR/." "$BACKUP_DIR/"

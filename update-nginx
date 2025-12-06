@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+#
+# Updating nginx.conf on server
+#
+# Author: lovetravelsfaster
+# Date: 2025-12-04
+# License: MIT
+
+#########
+# 0. Logs
+#########
+# Setting up update_logs.txt if doesnt exist
+update_logs="/var/log/webconfig/update_logs.txt"
+if ! ssh deploy@lakelabs 'bash -s' << EOF
+if [[ ! -f "$update_logs" ]]; then
+    printf "# run_id\ttime\tscript\tsite\tstatus\n" > "$update_logs"
+fi
+EOF
+then
+	exit 1
+fi
+
+RUN_ID=$(date +%s | sha1sum | cut -c1-8)
+
+############################################
+# 1. Create a backup of all /etc/nginx files
+############################################
+if ! ssh deploy@lakelabs bash -s -- < create-nginx-backup; then
+	exit 1
+fi
+
+# Log
+ssh deploy@lakelabs 'bash -s' << EOF
+printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(date +%Y-%m-%d_%H-%M-%S)" "update-nginx" "" "backup" >> "$update_logs"
+EOF
+
+######################
+# 2. Upload nginx.conf
+######################
+if ! rsync -avz --delete nginx-config/nginx.conf deploy@lakelabs:/etc/nginx/nginx.conf; then
+	exit 1
+fi
+
+# Log
+ssh deploy@lakelabs 'bash -s' << EOF
+printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(date +%Y-%m-%d_%H-%M-%S)" "update-nginx" "" "upload" >> "$update_logs"
+EOF
+
+#########
+# 3. Test
+#########
+if ! ssh deploy@lakelabs sudo nginx -t; then
+	exit 1
+fi
+
+# Log
+ssh deploy@lakelabs 'bash -s' << EOF
+printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(date +%Y-%m-%d_%H-%M-%S)" "update-nginx" "" "test" >> "$update_logs"
+EOF
+
+#################
+# 4. Reload nginx
+#################
+if ! ssh deploy@lakelabs sudo systemctl reload nginx; then
+	exit 1
+fi
+
+# Log
+ssh deploy@lakelabs 'bash -s' << EOF
+printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(date +%Y-%m-%d_%H-%M-%S)" "update-nginx" "" "reload" >> "$update_logs"
+EOF
