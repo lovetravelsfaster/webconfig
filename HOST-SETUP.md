@@ -20,6 +20,15 @@ Match User root Host *
   IdentityFile ~/.ssh/<name-of-ssh-id-file>
 ```
 
+Important, the wild cards can get a little dicey, make sure to keep an explicit section for things like git:
+```
+# Explicit git config
+Host github.com
+  HostName github.com
+  User <github username>
+  IdentityFile ~/.ssh/<name-of-ssh-github-key>
+```
+
 Then I log in with `ssh root@<specific-host>`, and it'll prompt you for whatever password you applied to your private key. I like to have blank pw, yolo.
 
 2. Set up own user
