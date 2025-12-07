@@ -56,10 +56,12 @@ I just like these set up.
 
 ### mosh
 Locally and on server:
+
 **MacOS**
 ```
 brew install mosh
 ```
+
 **Debian**
 ```
 sudo apt install mosh
