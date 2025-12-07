@@ -107,7 +107,7 @@ sudo systemctl reload nginx
 Go to your server's IP in your browser, and you should see "Welcome to nginx" splash screen
 
 ## 6. `deploy` user and `www-data` group
-I love to make changes to my server by running `rsync` and `ssh` commands/scripts from my local machine. And I like to use the user `deploy` for these things. And I don't want to use `sudo` commands and worry about password and whatever, so as much as possible, I like to just give ownership to `deploy` or `www-data`.
+I like to make changes to my server by running `rsync` and `ssh` commands/scripts from my local machine. And I like to use the user `deploy` for these things. And I don't want to use `sudo` commands and worry about password and whatever, so as much as possible, I like to just give ownership to `deploy` or `www-data`.
 
 ```
 sudo adduser deploy
