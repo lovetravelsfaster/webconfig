@@ -8,6 +8,6 @@
 
 SITE="${1:-}"
 
-rollout_log="/srv/www/$SITE/rollouts/rollout_log.txt"
+rollout_log="/var/log/sites/$SITE/rollout_log.txt"
 
 ssh deploy@lakelabs bash -s -- "$rollout_log" < read-rollout-log

@@ -49,7 +49,7 @@ printf "===============\n"
 ############################
 
 # Setting up rollout_logs.txt if doesnt exist
-rollout_log="/srv/www/clauslol/rollouts/rollout_log.txt"
+rollout_log="/var/log/sites/$SITE/rollout_log.txt"
 
 ssh deploy@lakelabs 'bash -s' << EOF
 if [[ ! -f "$rollout_log" ]]; then
@@ -75,8 +75,8 @@ printf "===============\n"
 # Then we update symlink
 ########################
 
-target=/srv/www/clauslol/releases/"$RELEASE_ID"
-link=/srv/www/clauslol/"$ENVIRONMENT"
+target=/srv/www/$SITE/releases/"$RELEASE_ID"
+link=/srv/www/$SITE/"$ENVIRONMENT"
 
 # Update symlink to new reality for environment
 if ssh deploy@lakelabs 'bash -s' << EOF

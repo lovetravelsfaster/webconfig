@@ -9,7 +9,7 @@
 
 SITE="${1:-}"
 
-release_log="/srv/www/$SITE/releases/release_log.txt"
+release_log="/var/log/sites/$SITE/release_log.txt"
 
 ssh deploy@lakelabs bash -s -- "$release_log" < read-release-log
 
