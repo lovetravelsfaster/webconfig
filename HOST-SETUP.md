@@ -28,7 +28,7 @@ Host github.com
   IdentityFile ~/.ssh/<name-of-ssh-github-key>
 ```
 
-Then I log in with `ssh root@<specific-host>`, and it'll prompt you for whatever password you applied to your private key. I like to have blank pw, yolo.
+Then I log in with `ssh root@<specific-host>`, and it'll prompt you for whatever password you applied to your private key.
 
 ## 2. Set up own user
 Once in as `root`, I like to add my own user, log out of `root`, and never log back in as `root` if I can avoid it.
