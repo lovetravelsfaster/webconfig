@@ -4,6 +4,8 @@ A collection of scripts to help me manage my nginx web server, and the rolling o
 
 The goal of this config is to keep all the logic within a repo I can pull locally, and with the right permissions, be able to manage configuration of my web server, without my server ever needing to have repos on it. The goal is to limit the amount of times I need to log in to my server and do anything, and manage everything with scripts from this repo.
 
+Check out [HOST-SETUP.md](HOST-SETUP-md) for the complete server setup that the scripts aren't set up to handle.
+
 Scripts
 -------
 
