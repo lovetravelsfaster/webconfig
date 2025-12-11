@@ -39,7 +39,7 @@ check_arg() {
 	declare -l lower_arg
 	lower_arg="$arg"
 	local function="check_$lower_arg"
-	if ssh deploy@"$HOST" "bash -s -- "$function" "$SITE" "${!arg}"" < check-args; then
+	if ssh deploy@"$HOST" "bash -s -- "$function" "$SITE_NAME" "${!arg}"" < check-args; then
 	    printf "$OK - $arg is valid\n"
 	else
 	    printf "$FAIL - $arg is not valid\n"
@@ -91,8 +91,8 @@ printf "===============\n"
 # Update symlink
 ################
 
-target=/srv/www/$SITE/releases/"$RELEASE_ID"
-link=/srv/www/$SITE/"$ENVIRONMENT"
+target=/srv/www/$SITE_NAME/releases/"$RELEASE_ID"
+link=/srv/www/$SITE_NAME/"$ENVIRONMENT"
 
 # Update symlink to new reality for environment
 if ssh deploy@"$HOST" 'bash -s' << EOF

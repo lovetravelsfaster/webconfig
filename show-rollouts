@@ -6,8 +6,23 @@
 # Date: 2025-12-01
 # License: MIT
 
-SITE="${1:-}"
+# Strict mode
+set -euo pipefail
 
-rollout_log="/var/log/sites/$SITE/rollout_log.txt"
+# Helper functions like check_arg_number, check_site_config, colors, etc.
+source "$(dirname "$0")/helpers"
 
-ssh deploy@lakelabs bash -s -- "$rollout_log" < read-rollout-log
+SITE="$1"
+
+# Make sure exact number of args is good, otherwise exit 1
+check_arg_number 1 "$#" "$0"
+
+# Site config
+source "$(dirname "$0")/site-configs/$SITE"
+
+# Check that loaded site-config has all vars set otherwise exit 1
+check_site_config
+
+rollout_log="/var/log/sites/$SITE_NAME/rollout_log.txt"
+
+ssh deploy@"$HOST" bash -s -- "$rollout_log" < read-rollout-log
