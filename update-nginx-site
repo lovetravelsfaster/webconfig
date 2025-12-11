@@ -44,7 +44,7 @@ ssh deploy@"$HOST" bash -s -- < create-nginx-backup
 
 # Log
 ssh deploy@"$HOST" 'bash -s' << EOF
-printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(date +%Y-%m-%d_%H-%M-%S)" "update-nginx-site" "$SITE_NAME" "backup" >> "$update_logs"
+printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(log_time)" "update-nginx-site" "$SITE_NAME" "backup" >> "$update_logs"
 EOF
 
 ######################
@@ -54,7 +54,7 @@ rsync -avz --delete nginx-config/sites/"$SITE_NAME" deploy@"$HOST":/etc/nginx/si
 
 # Log
 ssh deploy@"$HOST" 'bash -s' << EOF
-printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(date +%Y-%m-%d_%H-%M-%S)" "update-nginx-site" "$SITE_NAME" "upload" >> "$update_logs"
+printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(log_time)" "update-nginx-site" "$SITE_NAME" "upload" >> "$update_logs"
 EOF
 
 #########
@@ -64,7 +64,7 @@ ssh deploy@"$HOST" sudo nginx -t
 
 # Log
 ssh deploy@"$HOST" 'bash -s' << EOF
-printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(date +%Y-%m-%d_%H-%M-%S)" "update-nginx-site" "$SITE_NAME" "test" >> "$update_logs"
+printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(log_time)" "update-nginx-site" "$SITE_NAME" "test" >> "$update_logs"
 EOF
 
 #################
@@ -74,5 +74,5 @@ ssh deploy@"$HOST" sudo systemctl reload nginx
 
 # Log
 ssh deploy@"$HOST" 'bash -s' << EOF
-printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(date +%Y-%m-%d_%H-%M-%S)" "update-nginx-site" "$SITE_NAME" "reload" >> "$update_logs"
+printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(log_time)" "update-nginx-site" "$SITE_NAME" "reload" >> "$update_logs"
 EOF

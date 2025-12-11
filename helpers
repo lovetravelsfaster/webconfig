@@ -5,6 +5,11 @@ GREEN="\033[0;32m"
 RED="\033[0;31m"
 NC="\033[0m"
 
+# Shared log timestamp format
+log_time() {
+	date +%Y-%m-%d_%H-%M-%S.%3N
+}
+
 # Colored OK and FAIL symbols
 OK="[ ${GREEN}OK${NC} ]"
 FAIL="[ ${RED}FAIL${NC} ]"
