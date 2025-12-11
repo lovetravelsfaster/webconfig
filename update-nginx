@@ -6,66 +6,67 @@
 # Date: 2025-12-04
 # License: MIT
 
+# Strict mode
+set -euo pipefail
+
+# Helper functions like check_arg_number, check_site_config, colors, etc.
+source "$(dirname "$0")/helpers"
+
+HOST="$1"
+
+# Make sure exact number of args is good, otherwise exit 1
+check_arg_number 1 "$#" "$0"
+
 #########
 # 0. Logs
 #########
 # Setting up update_logs.txt if doesnt exist
 update_logs="/var/log/webconfig/update_logs.txt"
-if ! ssh deploy@lakelabs 'bash -s' << EOF
+ssh deploy@"$HOST" 'bash -s' << EOF
 if [[ ! -f "$update_logs" ]]; then
     printf "# run_id\ttime\tscript\tsite\tstatus\n" > "$update_logs"
 fi
 EOF
-then
-	exit 1
-fi
 
+# Unique-ish hash RUN_ID
 RUN_ID=$(date +%s | sha1sum | cut -c1-8)
 
 ############################################
 # 1. Create a backup of all /etc/nginx files
 ############################################
-if ! ssh deploy@lakelabs bash -s -- < create-nginx-backup; then
-	exit 1
-fi
+ssh deploy@"$HOST" bash -s -- < create-nginx-backup
 
 # Log
-ssh deploy@lakelabs 'bash -s' << EOF
+ssh deploy@"$HOST" 'bash -s' << EOF
 printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(date +%Y-%m-%d_%H-%M-%S)" "update-nginx" "" "backup" >> "$update_logs"
 EOF
 
 ######################
 # 2. Upload nginx.conf
 ######################
-if ! rsync -avz --delete nginx-config/nginx.conf deploy@lakelabs:/etc/nginx/nginx.conf; then
-	exit 1
-fi
+rsync -avz --delete nginx-config/nginx.conf deploy@"$HOST":/etc/nginx/nginx.conf
 
 # Log
-ssh deploy@lakelabs 'bash -s' << EOF
+ssh deploy@"$HOST" 'bash -s' << EOF
 printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(date +%Y-%m-%d_%H-%M-%S)" "update-nginx" "" "upload" >> "$update_logs"
 EOF
 
 #########
 # 3. Test
 #########
-if ! ssh deploy@lakelabs sudo nginx -t; then
-	exit 1
-fi
+ssh deploy@"$HOST" sudo nginx -t
 
 # Log
-ssh deploy@lakelabs 'bash -s' << EOF
+ssh deploy@"$HOST" 'bash -s' << EOF
 printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(date +%Y-%m-%d_%H-%M-%S)" "update-nginx" "" "test" >> "$update_logs"
 EOF
 
 #################
 # 4. Reload nginx
 #################
-if ! ssh deploy@lakelabs sudo systemctl reload nginx; then
-	exit 1
-fi
+ssh deploy@"$HOST" sudo systemctl reload nginx
 
 # Log
-ssh deploy@lakelabs 'bash -s' << EOF
+ssh deploy@"$HOST" 'bash -s' << EOF
 printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(date +%Y-%m-%d_%H-%M-%S)" "update-nginx" "" "reload" >> "$update_logs"
 EOF
