@@ -8,3 +8,21 @@ NC="\033[0m"
 # Colored OK and FAIL symbols
 OK="[ ${GREEN}OK${NC} ]"
 FAIL="[ ${RED}FAIL${NC} ]"
+
+check_arg_number() {
+	local expected="$1"
+	local actual="$2"
+	local script="$3"
+
+	if [ "$actual" -ne "$expected" ]; then
+		echo "Error in $script: Must use $expected args, received $actual." >&2
+		exit 1
+	fi
+}
+
+# This checks
+check_site_config() {
+	: "${SITE_NAME:?Site config missing SITE_NAME}"
+	: "${BUILD_DIR:?Site config missing BUILD_DIR}"
+	: "${HOST:?Site config missing HOST}"
+}

@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+#
+# Deploys a new release of a given
+# site to a given host
+#
+# Author: lovetravelsfaster
+# Date: 2025-12-09
+# License: MIT
+
+# Exit if any of the commands have an error
+set -e
+# Helper functions like check_arg_number, check_site_config
+source "$(dirname "$0")/helpers"
+
+# Input args
+SITE="$1"
+DESCRIPTION="$2"
+
+# Make sure exact number of args is good, otherwise exit 1
+check_arg_number 2 "$#" "$0"
+
+# Site config
+source "$(dirname "$0")/site-configs/$SITE"
+
+# Check that loaded site-config has all vars set otherwise exit 1
+check_site_config
+
+# Release ID
+RELEASE_ID=$(date +%Y-%m-%d_%H-%M-%S)
+
+# Setting up log of releases
+release_log_dir="/var/log/sites/$SITE_NAME"
+
+ssh deploy@"$HOST" mkdir -p "$release_log_dir"
+
+release_log="/var/log/sites/$SITE_NAME/release_log.txt"
+
+# Create log file with header if it doesn't exist
+ssh deploy@"$HOST" 'bash -s' << EOF
+if [[ ! -f "$release_log" ]]; then
+    printf "# release_id\tdescription\n" > "$release_log"
+fi
+EOF
+
+# Write log
+ssh deploy@"$HOST" 'bash -s' << EOF
+printf '%s\t%s\n' "$RELEASE_ID" "$DESCRIPTION" >> "$release_log"
+EOF
+
+# rsync current build to releases folder
+TARGET="deploy@"$HOST":/srv/www/$SITE_NAME/releases/$(echo $RELEASE_ID)"
+rsync -avz --delete "$BUILD_DIR" "$TARGET/"

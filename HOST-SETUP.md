@@ -122,8 +122,8 @@ I like to make changes to my server by running `rsync` and `ssh` commands/script
 
 ```
 sudo adduser deploy
-usermod -aG sudo deploy
-usermod -aG www-data deploy
+sudo usermod -aG sudo deploy
+sudo usermod -aG www-data deploy
 ```
 
 ## 7. Setup dirs and permissions
@@ -180,6 +180,7 @@ sudo visudo
 Add:
 
 ```
+# Allow deploy user to run a few commands without sudo
 deploy ALL=(root) NOPASSWD: /usr/sbin/nginx -t
 deploy ALL=(root) NOPASSWD: /usr/bin/systemctl reload nginx
 ```

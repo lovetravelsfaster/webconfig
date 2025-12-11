@@ -1,0 +1,5 @@
+# Configs for site "clauslol"
+
+SITE_NAME=clauslol
+BUILD_DIR=~/Code/clauslol/_site
+HOST=lakelabs
