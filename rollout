@@ -7,19 +7,31 @@
 # Author: lovetravelsfaster
 # Date: 2025-12-01
 # License: MIT
-source "$(dirname "$0")/helpers"
 
+# Strict mode
 set -euo pipefail
 
-SITE="${1:-}"
-ENVIRONMENT="${2:-}"
-RELEASE_ID="${3:-}"
+# Helper functions like check_arg_number, check_site_config, colors, etc.
+source "$(dirname "$0")/helpers"
+
+SITE="$1"
+ENVIRONMENT="$2"
+RELEASE_ID="$3"
+
+# Make sure exact number of args is good, otherwise exit 1
+check_arg_number 3 "$#" "$0"
+
+# Site config
+source "$(dirname "$0")/site-configs/$SITE"
+
+# Check that loaded site-config has all vars set otherwise exit 1
+check_site_config
 
 ROLLOUT_ID=$(date +%Y-%m-%d_%H-%M-%S)
 
-#############################
-# First we check all the args
-#############################
+##########################
+# Check all the arg values
+##########################
 
 # This checks a given arg
 check_arg() {
@@ -27,7 +39,7 @@ check_arg() {
 	declare -l lower_arg
 	lower_arg="$arg"
 	local function="check_$lower_arg"
-	if ssh deploy@lakelabs "bash -s -- "$function" "$SITE" "${!arg}"" < check-args; then
+	if ssh deploy@"$HOST" "bash -s -- "$function" "$SITE" "${!arg}"" < check-args; then
 	    printf "$OK - $arg is valid\n"
 	else
 	    printf "$FAIL - $arg is not valid\n"
@@ -44,21 +56,25 @@ printf "$OK - ALL args checked out OK\n"
 
 printf "===============\n"
 
-############################
-# Then we write rollout logs
-############################
+####################
+# Write rollout logs
+####################
+
+rollout_log_dir="/var/log/sites/$SITE_NAME"
+
+ssh deploy@"$HOST" mkdir -p "$rollout_log_dir"
 
 # Setting up rollout_logs.txt if doesnt exist
-rollout_log="/var/log/sites/$SITE/rollout_log.txt"
+rollout_log="$rollout_log_dir/rollout_log.txt"
 
-ssh deploy@lakelabs 'bash -s' << EOF
+ssh deploy@"$HOST" 'bash -s' << EOF
 if [[ ! -f "$rollout_log" ]]; then
     printf "# rollout_id\trelease_id\tenvironment\n" > "$rollout_log"
 fi
 EOF
 
 # Writing rollout data to rollout_log.txt
-if ssh deploy@lakelabs 'bash -s' << EOF
+if ssh deploy@"$HOST" 'bash -s' << EOF
 printf '%s\t%s\t%s\n' "$ROLLOUT_ID" "$RELEASE_ID" "$ENVIRONMENT" >> "$rollout_log"
 EOF
 then
@@ -71,15 +87,15 @@ fi
 
 printf "===============\n"
 
-########################
-# Then we update symlink
-########################
+################
+# Update symlink
+################
 
 target=/srv/www/$SITE/releases/"$RELEASE_ID"
 link=/srv/www/$SITE/"$ENVIRONMENT"
 
 # Update symlink to new reality for environment
-if ssh deploy@lakelabs 'bash -s' << EOF
+if ssh deploy@"$HOST" 'bash -s' << EOF
 	ln -sfn $target $link
 EOF
 then

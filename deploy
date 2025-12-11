@@ -7,8 +7,9 @@
 # Date: 2025-12-09
 # License: MIT
 
-# Exit if any of the commands have an error
-set -e
+# Strict mode
+set -euo pipefail
+
 # Helper functions like check_arg_number, check_site_config
 source "$(dirname "$0")/helpers"
 
@@ -33,7 +34,7 @@ release_log_dir="/var/log/sites/$SITE_NAME"
 
 ssh deploy@"$HOST" mkdir -p "$release_log_dir"
 
-release_log="/var/log/sites/$SITE_NAME/release_log.txt"
+release_log="$release_log_dir/release_log.txt"
 
 # Create log file with header if it doesn't exist
 ssh deploy@"$HOST" 'bash -s' << EOF
@@ -49,4 +50,4 @@ EOF
 
 # rsync current build to releases folder
 TARGET="deploy@"$HOST":/srv/www/$SITE_NAME/releases/$(echo $RELEASE_ID)"
-rsync -avz --delete "$BUILD_DIR" "$TARGET/"
+rsync -avz --delete "$BUILD_DIR/" "$TARGET/"
