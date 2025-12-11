@@ -47,14 +47,22 @@ ssh deploy@"$HOST" 'bash -s' << EOF
 printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(log_time)" "update-nginx-site" "$SITE_NAME" "backup" >> "$update_logs"
 EOF
 
-######################
-# 2. Upload nginx.conf
-######################
+############################
+# 2. Upload site config file
+############################
 rsync -avz --delete nginx-config/sites/"$SITE_NAME" deploy@"$HOST":/etc/nginx/sites-available/"$SITE_NAME"
 
 # Log
 ssh deploy@"$HOST" 'bash -s' << EOF
 printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(log_time)" "update-nginx-site" "$SITE_NAME" "upload" >> "$update_logs"
+EOF
+
+# Create sites-enabled symlink, if not exists already
+ssh deploy@"$HOST" 'bash -s' << EOF
+if [ ! -e /etc/nginx/sites-enabled/"$SITE_NAME" ]; then
+	ln -s /etc/nginx/sites-available/"$SITE_NAME" /etc/nginx/sites-enabled/"$SITE_NAME"
+	printf '%s\t%s\t%s\t%s\t%s\n' "$RUN_ID" "$(log_time)" "update-nginx-site" "$SITE_NAME" "sites-enabled symlink" >> "$update_logs"
+fi
 EOF
 
 #########
